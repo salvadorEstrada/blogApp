@@ -3,6 +3,8 @@ package com.app.blog.controller;
 import java.security.Principal;
 import java.util.Collections;
 
+import com.app.blog.security.JWTAuthResponseDTO;
+import com.app.blog.security.JwtTokenProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -38,18 +40,21 @@ public class AuthControlador {
 	@Autowired 
 	private PasswordEncoder passwordEncoder;
 
-	@GetMapping("/obtenrUsuarioLogeado")
-	public String currentUserName(Authentication authentication){
-		return authentication.getName();
-	}
-	
+    //Al final se inyecta esta clase
+    @Autowired
+	private JwtTokenProvider jwtTokenProvider;
+
 	 
-	@PostMapping("/inicioSesion")
-	public ResponseEntity<String> authenticateUser(@RequestBody LoginDTO loginDTO ){
+	@PostMapping("/iniciarSesion")
+	public ResponseEntity<JWTAuthResponseDTO> authenticateUser(@RequestBody LoginDTO loginDTO ){
 		Authentication authentication =authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginDTO.getUsernameOrEmail(),loginDTO.getPassword()));
-			SecurityContextHolder.getContext().setAuthentication(authentication);//Establecer la authenticacion
-		return new ResponseEntity<>("Ha iniciado sessión con exito",HttpStatus.OK);
-		} 
+		SecurityContextHolder.getContext().setAuthentication(authentication);//Establecer la authenticacion
+		//Obtenemos el token del jwtTokenProvider, esto se hace alultimo cuando se ha creado JwtTokenProvider
+		String token = jwtTokenProvider.generarToken(authentication);
+		//return new ResponseEntity<>("Ha iniciado sessión con exito",HttpStatus.OK);
+		//ahora regresa el token
+		return ResponseEntity.ok(new JWTAuthResponseDTO(token));
+	}
 	
 	@PostMapping("/registrar") 
 	public ResponseEntity<?> registrarUsuario(@RequestBody  RegistroUsuariosDTO resgistroUsuariosDTO){ 
@@ -77,7 +82,7 @@ public class AuthControlador {
 		
 	}
 	
-		
+	//HASTA AQUI SOLO PUEDO INGRESAR CON UN USUARIO EN PARTICULAR, AUN NO ME GENERA TOKEN
 }
 	
 
