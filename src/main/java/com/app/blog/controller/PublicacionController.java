@@ -7,6 +7,7 @@ import com.app.blog.util.AppConstantes;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -32,19 +33,19 @@ public class PublicacionController {
     public ResponseEntity<PublicacionDTO> getPublicacionPorId(@PathVariable Long publicacionId){
         return new ResponseEntity<>(publicacionService.obtenerPublicacionPorId(publicacionId), HttpStatus.OK);
     }
-
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<PublicacionDTO> guardarPublicacion(@Valid @RequestBody PublicacionDTO publicacionDTO){
         return new ResponseEntity<>(publicacionService.crearPublicacion(publicacionDTO), HttpStatus.CREATED);
     }
 
-
+    @PreAuthorize("hasRole('ADMIN')")
    @PutMapping("/{publicacionId}")
     public ResponseEntity<PublicacionDTO> actualizarPublicacion(@Valid @RequestBody PublicacionDTO publicacionDTO,@PathVariable Long publicacionId){
     return  new ResponseEntity<>(publicacionService.actualizarPublicacion(publicacionDTO,publicacionId), HttpStatus.OK);
    }
 
-
+    @PreAuthorize("hasRole('ADMIN')")
    @DeleteMapping("/{publicacionId}")
     public ResponseEntity<String> eliminarPublicacion(@PathVariable Long publicacionId){
         publicacionService.eliminarPublicacion(publicacionId);
